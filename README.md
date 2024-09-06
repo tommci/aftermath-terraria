@@ -6,6 +6,9 @@ As this is a project for fun I don't have any guarantees for continued additions
 The name of the mod itself is a (slight) reference to the song Mirror by Porter Robinson: 
 
 "Well, you were the aftermath
+
 Of every judgement
+
 So cold by the sweat that
+
 You'll waste away"
