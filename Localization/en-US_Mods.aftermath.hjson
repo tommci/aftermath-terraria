@@ -1,0 +1,28 @@
+Items: {
+	TomyWings: {
+		DisplayName: Tomy Wings
+		Tooltip: stope it tomy!
+	}
+
+	DirtLootbox: {
+		DisplayName: Dirt Lootbox
+		Tooltip: Pointless item
+	}
+
+	Lavaporter: {
+		DisplayName: Lavaporter
+		Tooltip: Very useful item
+	}
+
+	StaffofDiscord: {
+		DisplayName: Staff of Discord
+		Tooltip: Completely balanced
+	}
+
+	Longsword: {
+		DisplayName: Longsword
+		Tooltip: A weapon of unknown origin. Follows a unique attack pattern.
+	}
+}
+
+Projectiles.LongswordSwing.DisplayName: Longsword Swing

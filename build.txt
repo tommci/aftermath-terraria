@@ -1,0 +1,3 @@
+displayName = Aftermath
+author = isohel
+version = 0.1
