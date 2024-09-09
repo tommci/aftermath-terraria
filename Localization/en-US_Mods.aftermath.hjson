@@ -1,28 +1,41 @@
 Items: {
 	TomyWings: {
 		DisplayName: Tomy Wings
-		Tooltip: stope it tomy!
+		Tooltip: stope it tomy! (obviously a developer item)
 	}
 
 	DirtLootbox: {
 		DisplayName: Dirt Lootbox
-		Tooltip: Pointless item
+		Tooltip: Pointless item... for now.
 	}
 
 	Lavaporter: {
 		DisplayName: Lavaporter
-		Tooltip: Very useful item
+		Tooltip: Very useful item!!
 	}
 
 	StaffofDiscord: {
 		DisplayName: Staff of Discord
-		Tooltip: Completely balanced
+		Tooltip: Completely balanced. Obviously a developer item.
 	}
 
 	Longsword: {
 		DisplayName: Longsword
-		Tooltip: A weapon of unknown origin. Follows a unique attack pattern.
+		Tooltip: A weapon of unknown origin. Follows an unusual attack pattern.
+	}
+
+	DualBlades: {
+		DisplayName: Dual Blades
+		Tooltip: A weapon of unknown origin. Swings very quickly but does low damage.
+	}
+
+	BuilderDelight: {
+		DisplayName: Builder's Delight
+		Tooltip: Makes your mining and building speed absolutely ridiculous. Obviously a developer item.
 	}
 }
 
-Projectiles.LongswordSwing.DisplayName: Longsword Swing
+Projectiles: {
+	LongswordSwing.DisplayName: Longsword Swing
+	DualbladeSwing.DisplayName: Dualblade Swing
+}

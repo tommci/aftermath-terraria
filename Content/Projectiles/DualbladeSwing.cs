@@ -11,25 +11,18 @@ using Terraria.ModLoader;
 
 namespace aftermath.Content.Projectiles
 {
-    public class LongswordSwing : ModProjectile
+    public class DualbladeSwing : ModProjectile
     {
-        // const values will go below here based on moveset, will require tweaking, may need more based on future moves added
-        private const float OVERHEAD_SWING_RANGE = 1.33f * (float)Math.PI; // angle overhead swing covers
-        private const float OVERHEAD_BEFORE_ATK = 0.15f; // how much of overhead swing happens before it can do damage
-        private const float OVERHEAD_DELAY = 0.7f; // how long the sword is held up until it is swung (on overhead slash I)
-        private const float UPWARD_SWING_RANGE = 2.5f; // angle upward swing covers, should be a little less than overhead
-        private const float UPWARD_BEFORE_ATK = 0.1f; // how much of upward swing happens before it can do damage
+
+        private const float SWING_RANGE = 1.33f * (float)Math.PI; // angle the two swing types swing cover
+        private const float BEFORE_ATK = 0.05f; // how much of swing happens before it can do damage
         private const float UNWIND = 0.4f; // how long until the attack is over
 
         private enum AttackType
         {
-            OverheadSlash,
+            DownwardSwing,
 
-            OverheadSlashII, // overhead slash II is identical to I except it has no delay
-
-            Stab,
-
-            UpwardSlash,
+            UpwardSwing,
         }
 
         private enum AttackStage
@@ -60,12 +53,11 @@ namespace aftermath.Content.Projectiles
         private ref float Progress => ref Projectile.localAI[1]; // Position of sword relative to initial angle (from examplemod)
         // note that sword size will probably remain constant, but keeping track of size *would* go here otherwise
 
-        public override string Texture => $"Terraria/Images/Item_{ItemID.Katana}"; // uses katana texture for now
+        public override string Texture => $"Terraria/Images/Item_{ItemID.FalconBlade}"; // uses falconblade texture (for now)
         private Player Owner => Main.player[Projectile.owner];
 
-        private float prepTime => 10f / Owner.GetTotalAttackSpeed(Projectile.DamageType); // amount of time in prep (pre-swing)
-        private float execTime => 12f / Owner.GetTotalAttackSpeed(Projectile.DamageType); // amount of time in actual swing
-        private float stabTimer = 1f; // stab timer
+        private float prepTime => 1f / Owner.GetTotalAttackSpeed(Projectile.DamageType); // amount of time in prep (pre-swing)
+        private float execTime => 6f / Owner.GetTotalAttackSpeed(Projectile.DamageType); // amount of time in actual swing
 
         public override void SetStaticDefaults()
         {
@@ -77,9 +69,9 @@ namespace aftermath.Content.Projectiles
             Projectile.width = 50; // hitbox width and height - may need adjusting
             Projectile.height = 50;
             Projectile.friendly = true;
-            Projectile.timeLeft = 10000; // time for projectile to expire, may need adjustment (but probably not)
+            Projectile.timeLeft = 10000;
             Projectile.penetrate = -1;
-            Projectile.tileCollide = false; // proj does not collide with tiles, may want to adjust this for accuracy to MH
+            Projectile.tileCollide = false;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.ownerHitCheck = true; // cannot hit things through tiles
             Projectile.DamageType = DamageClass.Melee;
@@ -88,24 +80,32 @@ namespace aftermath.Content.Projectiles
         public override void OnSpawn(IEntitySource source)
         {
             Projectile.spriteDirection = Main.MouseWorld.X > Owner.MountedCenter.X ? 1 : -1; // this determines which way the sword faces based on x position of mouse
+            float targetAngle = (Main.MouseWorld - Owner.MountedCenter).ToRotation(); // the dbs will point to the mouse cursor when swinging
+            //targetAngle = MathHelper.Clamp(targetAngle, (float)-Math.PI * 1 / 3, (float)Math.PI * 1 / 6);
 
-            if (CurrentAttack == AttackType.OverheadSlash || CurrentAttack == AttackType.OverheadSlashII)
+            if (CurrentAttack == AttackType.DownwardSwing)
             {
-                //Main.NewText("Overhead", 255, 255, 255); // debug text prints to gamechat to tell me what attack should be happening
-                InitialAngle = Projectile.spriteDirection == 1 ? 4.19f : 5.24f;
-            }
-            else if (CurrentAttack == AttackType.UpwardSlash)
+                if (Projectile.spriteDirection > 0)
+                {
+                    InitialAngle = targetAngle + 5f;
+                }
+                else
+                {
+                    InitialAngle = targetAngle - 5f;
+                }
+            } else
             {
-                //Main.NewText("Upward", 255, 255, 255);
-                InitialAngle = Projectile.spriteDirection == 1 ? 0.3f : 2.9f; // to adjust angle: first number (facing right) lower = weapon higher, second number lower = weapon lower
-                Projectile.spriteDirection *= -1;
-            }
-            else if (CurrentAttack == AttackType.Stab)
-            {
-                //Main.NewText("Stab", 255, 255, 255);
-                InitialAngle = Projectile.spriteDirection == 1 ? 6.28f : 3.14f;
-                stabTimer = 1f;
-            }
+                if (Projectile.spriteDirection > 0)
+                {
+                    InitialAngle = targetAngle - 5f;
+                    Projectile.spriteDirection *= -1;
+                }
+                else
+                {
+                    InitialAngle = targetAngle + 5f;
+                    Projectile.spriteDirection *= -1;
+                }
+            }       
         }
 
         // for multiplayer syncing (straight outta examplemod): 
@@ -122,9 +122,9 @@ namespace aftermath.Content.Projectiles
 
         public override void AI()
         {
-            Owner.itemAnimation = CurrentAttack == AttackType.UpwardSlash ? 50 : 15; // changing these will extend the length of time it takes to swing again
-            Owner.itemTime = CurrentAttack == AttackType.UpwardSlash ? 50 : 15;      // always keep them the same
-                                                                                     // also checks if upward slash to make doing a full combo have a cooldown
+            Owner.itemAnimation = 2; // changing these will extend the length of time it takes to swing again
+            Owner.itemTime = 2;      // always keep them the same
+
             if (!Owner.active || Owner.dead || Owner.noItems || Owner.CCed) // if the owner is dead or something get rid of the proj
             {
                 Projectile.Kill();
@@ -209,25 +209,10 @@ namespace aftermath.Content.Projectiles
             Owner.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation - MathHelper.ToRadians(90f)); // set arm position (90 degree offset since arm starts lowered)
             Vector2 armPosition = Owner.GetFrontHandPosition(Player.CompositeArmStretchAmount.Full, Projectile.rotation - (float)Math.PI / 2); // get position of hand
 
-            if (CurrentAttack != AttackType.Stab)
-            {
-                armPosition.Y += Owner.gfxOffY;
-                Projectile.Center = armPosition; // Set projectile to arm position
-            } else
-            {
-                Vector2 playerCenter = player.RotatedRelativePoint(player.MountedCenter, reverseRotation: false, addGfxOffY: false);
-                if (Projectile.spriteDirection > 0)
-                {
-                    playerCenter.X += stabTimer;
-                }
-                else
-                {
-                    playerCenter.X -= stabTimer;
-                }
-                stabTimer *= 1.13f; // how much stabtimer increases, resulting in how far (and fast) sword travels on stab. making this any higher than 1.2 results in silly behavior
-                Projectile.Center = playerCenter;
-            }
-            Projectile.scale = Owner.GetAdjustedItemScale(Owner.HeldItem) + 2; // take into account melee size modifiers, adjust size
+            armPosition.Y += Owner.gfxOffY;
+            Projectile.Center = armPosition; // Set projectile to arm position
+
+            Projectile.scale = Owner.GetAdjustedItemScale(Owner.HeldItem) + 1; // take into account melee size modifiers, adjust size
 
             Owner.heldProj = Projectile.whoAmI; // set held projectile to this projectile
         }
@@ -239,33 +224,23 @@ namespace aftermath.Content.Projectiles
 
         private void PrepareSwing()
         {
-            if (CurrentAttack == AttackType.OverheadSlash)
+            if (Timer >= prepTime)
             {
-                if (Timer >= prepTime + OVERHEAD_DELAY)
-                {
-                    SoundEngine.PlaySound(SoundID.Item71);
-                    CurrentStage = AttackStage.Swing;
-                }
-            } else
-            {
-                if (Timer >= prepTime)
-                {
-                    SoundEngine.PlaySound(SoundID.Item71);
-                    CurrentStage = AttackStage.Swing;
-                }
+                SoundEngine.PlaySound(SoundID.Item1);
+                CurrentStage = AttackStage.Swing;
             }
         }
 
         private void ExecuteSwing()
         {
             Player player = Main.player[Projectile.owner];
-            if (CurrentAttack == AttackType.OverheadSlash || CurrentAttack == AttackType.OverheadSlashII)
+            if (CurrentAttack == AttackType.DownwardSwing)
             {
-                Progress = MathHelper.SmoothStep(0, OVERHEAD_SWING_RANGE, (1f - UNWIND) * Timer / execTime);
+                Progress = MathHelper.SmoothStep(0, SWING_RANGE, (1f - UNWIND) * Timer / execTime);
             }
-            else if (CurrentAttack == AttackType.UpwardSlash)
+            else if (CurrentAttack == AttackType.UpwardSwing)
             {
-                Progress = MathHelper.SmoothStep(0, UPWARD_SWING_RANGE, (1f - UNWIND) * Timer / execTime);
+                Progress = MathHelper.SmoothStep(0, SWING_RANGE, (1f - UNWIND) * Timer / execTime);
             }
 
             if (Timer >= execTime)
