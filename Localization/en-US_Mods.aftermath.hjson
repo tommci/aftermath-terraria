@@ -33,9 +33,15 @@ Items: {
 		DisplayName: Builder's Delight
 		Tooltip: Makes your mining and building speed absolutely ridiculous. Obviously a developer item.
 	}
+
+	Dullscythe: {
+		DisplayName: dullscythe
+		Tooltip: ""
+	}
 }
 
 Projectiles: {
 	LongswordSwing.DisplayName: Longsword Swing
 	DualbladeSwing.DisplayName: Dualblade Swing
+	DullscytheSwing.DisplayName: Dullscythe Swing
 }
